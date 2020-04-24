@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 import classes from './Quiz.css'
 import ActiveQuiz from '../../components/ActiveQuiz/ActiveQuiz'
 import FinishedQuiz from '../../components/FinishedQuiz/FinishedQuiz'
+import axios from '../../axios/axios-quiz'
+import Loader from '../../components/UI/Loader/Loader'
 
 class Quiz extends Component {
   state = {
@@ -10,29 +12,30 @@ class Quiz extends Component {
     activeQuestion: 0,
     answerState: null, // { [id]: 'success' 'error' }
     quiz: [
-      {
-        question: 'Какого цвета небо?',
-        rightAnswerId: 2,
-        id: 1,
-        answers: [
-          {text: 'Черный', id: 1},
-          {text: 'Синий', id: 2},
-          {text: 'Красный', id: 3},
-          {text: 'Зеленый', id: 4}
-        ]
-      },
-      {
-        question: 'В каком году основали Санкт-Петербург?',
-        rightAnswerId: 3,
-        id: 2,
-        answers: [
-          {text: '1700', id: 1},
-          {text: '1702', id: 2},
-          {text: '1703', id: 3},
-          {text: '1803', id: 4}
-        ]
-      }
-    ]
+      // {
+      //   question: 'Какого цвета небо?',
+      //   rightAnswerId: 2,
+      //   id: 1,
+      //   answers: [
+      //     {text: 'Черный', id: 1},
+      //     {text: 'Синий', id: 2},
+      //     {text: 'Красный', id: 3},
+      //     {text: 'Зеленый', id: 4}
+      //   ]
+      // },
+      // {
+      //   question: 'В каком году основали Санкт-Петербург?',
+      //   rightAnswerId: 3,
+      //   id: 2,
+      //   answers: [
+      //     {text: '1700', id: 1},
+      //     {text: '1702', id: 2},
+      //     {text: '1703', id: 3},
+      //     {text: '1803', id: 4}
+      //   ]
+      // }
+    ], 
+    loading: true
   }
 
   onAnswerClickHandler = answerId => {
@@ -92,7 +95,18 @@ class Quiz extends Component {
   }
 
 
-  componentDidMount() {
+  async componentDidMount() {
+    try {
+      const response = await axios.get(`/quizes/${this.props.match.params.id}.json`)
+      const quiz = response.data
+
+      this.setState({
+        quiz, 
+        loading: false
+      })
+    } catch(e) {
+      console.log(e)
+    }
     console.log('Quiz id = ', this.props.match.params.id)
   }
 
@@ -102,21 +116,22 @@ class Quiz extends Component {
         <div className={classes.QuizWrapper}>
           <h1>Ответьте на все вопросы</h1>
 
-          {
-            this.state.isFinished
-             ? <FinishedQuiz
-                  results={this.state.results}
-                  quiz={this.state.quiz}
-                  onRetry={this.retryHandler}
-                />
-             : <ActiveQuiz
-                  answers={this.state.quiz[this.state.activeQuestion].answers}
-                  question={this.state.quiz[this.state.activeQuestion].question}
-                  onAnswerClick={this.onAnswerClickHandler}
-                  quizLength={this.state.quiz.length}
-                  answerNumber={this.state.activeQuestion + 1}
-                  state={this.state.answerState}
-              />
+          { this.state.loading
+              ? <Loader />
+              : this.state.isFinished
+                ? <FinishedQuiz
+                    results={this.state.results}
+                    quiz={this.state.quiz}
+                    onRetry={this.retryHandler}
+                  />
+                : <ActiveQuiz
+                    answers={this.state.quiz[this.state.activeQuestion].answers}
+                    question={this.state.quiz[this.state.activeQuestion].question}
+                    onAnswerClick={this.onAnswerClickHandler}
+                    quizLength={this.state.quiz.length}
+                    answerNumber={this.state.activeQuestion + 1}
+                    state={this.state.answerState}
+                  />
           }
         </div>
       </div>
