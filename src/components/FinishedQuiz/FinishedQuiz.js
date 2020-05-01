@@ -21,7 +21,7 @@ const FinishedQuiz = props => {
             props.results[quizItem.id] === 'error' ? 'fa-times' : 'fa-check',
             classes[props.results[quizItem.id]]
           ]
-          console.log('quiitem', quizItem)
+
           return (
             <li
               key={index}

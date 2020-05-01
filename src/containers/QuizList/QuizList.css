@@ -19,6 +19,7 @@
 
 .QuizList li {
     margin-bottom: 10px;
+    text-align: center;
 }
 
 .QuizList li a {
